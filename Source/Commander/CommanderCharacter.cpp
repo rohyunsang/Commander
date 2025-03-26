@@ -52,7 +52,22 @@ ACommanderCharacter::ACommanderCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	
 }
+
+void ACommanderCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	EquipWeaponToHand();
+}
+
+void ACommanderCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -126,4 +141,54 @@ void ACommanderCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ACommanderCharacter::EquipWeaponToHand()
+{
+	// 1. WeaponMeshReference와 GetMesh() 확인
+	if (!WeaponMeshReference)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponMeshReference is null. Make sure the mesh is properly loaded."));
+		return;
+	}
+
+	if (!GetMesh())
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetMesh() returned null. Make sure the character mesh is set up properly."));
+		return;
+	}
+
+	// 2. 스켈레톤 메시 컴포넌트 가져오기
+	USkeletalMeshComponent* MeshComponent = GetMesh();
+	if (!MeshComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to get SkeletalMeshComponent."));
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("MeshComponent found: %s"), *MeshComponent->GetName());
+
+	// 3. 무기 메시를 별도의 컴포넌트로 추가 (SetSkeletalMesh 대신)
+	// 새로운 Skeletal Mesh Component를 생성하여 무기 메시를 장착
+	UStaticMeshComponent* WeaponMesh = NewObject<UStaticMeshComponent>(this);
+	WeaponMesh->SetupAttachment(MeshComponent, TEXT("hand_rSocket"));  // hand_rSocket에 부착
+	WeaponMesh->SetStaticMesh(WeaponMeshReference);
+	WeaponMesh->RegisterComponent();  // 컴포넌트 등록
+
+	// 4. 소켓 이름 확인
+	FName SocketName = TEXT("hand_rSocket");
+	if (!MeshComponent->DoesSocketExist(SocketName))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Socket %s does not exist on the mesh. Make sure the socket is correctly defined in the skeleton."), *SocketName.ToString());
+		return;
+	}
+
+	// 5. 무기 소켓에 무기 부착 (위에서 생성한 WeaponMesh에 소켓 위치를 설정)
+	WeaponMesh->AttachToComponent(MeshComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+
+	// 6. 추가 디버깅 정보
+	FTransform SocketTransform = MeshComponent->GetSocketTransform(SocketName, RTS_World);
+	UE_LOG(LogTemp, Log, TEXT("Socket Transform: Location: %s, Rotation: %s"), *SocketTransform.GetLocation().ToString(), *SocketTransform.GetRotation().Rotator().ToString());
+
+	UE_LOG(LogTemp, Log, TEXT("Weapon successfully attached to socket: %s"), *SocketName.ToString());
 }

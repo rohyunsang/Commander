@@ -68,5 +68,18 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+
+
+public: 
+	// 헤더 파일에서 필요 변수 선언
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UStaticMesh* WeaponMeshReference; // 무기 메시 참조
+
+	void EquipWeaponToHand();
+
+protected: 
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 };
 
