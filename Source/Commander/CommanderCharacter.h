@@ -11,6 +11,10 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+
+class UInventoryComponent;
+class UWeaponSwapComponent;
+
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -44,9 +48,40 @@ class ACommanderCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SwapPrimaryAction;
+
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SwapSecondaryAction;
+
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SwapMeleeAction;
+
 public:
 	ACommanderCharacter();
+
+	// 무기 스왑 컴포넌트 (플레이어의 무기 스왑을 담당)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UWeaponSwapComponent* WeaponSwapComponent;
+
+	// 인벤토리 컴포넌트 (아이템 관리)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+	UInventoryComponent* InventoryComponent;
+
+	// 무기 스왑 함수 (주력 무기로 스왑)
+	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	void SwapToPrimaryWeapon();
 	
+	// 무기 스왑 함수 (주력 무기로 스왑)
+	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	void SwapToSecondaryWeapon();
+
+	// 무기 스왑 함수 (주력 무기로 스왑)
+	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	void SwapToMeleeWeapon();
 
 protected:
 

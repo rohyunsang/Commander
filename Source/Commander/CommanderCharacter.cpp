@@ -10,6 +10,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Inventory/InventoryComponent.h"
+#include "PlayerComponent/WeaponSwapComponent.h"
+
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -53,7 +56,40 @@ ACommanderCharacter::ACommanderCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+	WeaponSwapComponent = CreateDefaultSubobject<UWeaponSwapComponent>(TEXT("WeaponSwapComponent"));
+
+
+	// 입력 액션들을 ConstructorHelpers로 로드
+	static ConstructorHelpers::FObjectFinder<UInputAction> SwapPrimaryActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_SwapPrimaryWeapon.IA_SwapPrimaryWeapon'"));
+	if (SwapPrimaryActionRef.Succeeded())
+	{
+		SwapPrimaryAction = SwapPrimaryActionRef.Object;
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("Failed to load IA_SwapPrimaryWeapon"));
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> SwapSecondaryActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_SwapSecondaryWeapon.IA_SwapSecondaryWeapon'"));
+	if (SwapSecondaryActionRef.Succeeded())
+	{
+		SwapSecondaryAction = SwapSecondaryActionRef.Object;
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("Failed to load IA_SwapSecondaryWeapon"));
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> SwapMeleeActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_SwapMeleeWeapon.IA_SwapMeleeWeapon'"));
+	if (SwapMeleeActionRef.Succeeded())
+	{
+		SwapMeleeAction = SwapMeleeActionRef.Object;
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("Failed to load IA_SwapMeleeWeapon"));
+	}
 }
 
 void ACommanderCharacter::BeginPlay()
@@ -100,6 +136,11 @@ void ACommanderCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACommanderCharacter::Look);
+
+		// 무기 스왑 입력 바인딩 예시 (예: 키 '1'로 주력 무기로 스왑)
+		EnhancedInputComponent->BindAction(SwapPrimaryAction, ETriggerEvent::Started, this, &ACommanderCharacter::SwapToPrimaryWeapon);
+		EnhancedInputComponent->BindAction(SwapSecondaryAction, ETriggerEvent::Started, this, &ACommanderCharacter::SwapToSecondaryWeapon);
+		EnhancedInputComponent->BindAction(SwapMeleeAction, ETriggerEvent::Started, this, &ACommanderCharacter::SwapToMeleeWeapon);
 	}
 	else
 	{
@@ -191,4 +232,45 @@ void ACommanderCharacter::EquipWeaponToHand()
 	UE_LOG(LogTemp, Log, TEXT("Socket Transform: Location: %s, Rotation: %s"), *SocketTransform.GetLocation().ToString(), *SocketTransform.GetRotation().Rotator().ToString());
 
 	UE_LOG(LogTemp, Log, TEXT("Weapon successfully attached to socket: %s"), *SocketName.ToString());
+}
+
+
+// 플레이어 캐릭터의 입력 함수 예시: 주력 무기로 스왑하는 함수
+void ACommanderCharacter::SwapToPrimaryWeapon()
+{
+	if (WeaponSwapComponent)
+	{
+		WeaponSwapComponent->SwapWeapon(EItemCategory::PrimaryWeapon);
+		UE_LOG(LogTemp, Warning, TEXT("PrimaryWeapon Equip"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponSwapComponent is null in SwapToPrimaryWeapon"));
+	}
+}
+// 플레이어 캐릭터의 입력 함수 예시: 주력 무기로 스왑하는 함수
+void ACommanderCharacter::SwapToSecondaryWeapon()
+{
+	if (WeaponSwapComponent)
+	{
+		WeaponSwapComponent->SwapWeapon(EItemCategory::SecondaryWeapon);
+		UE_LOG(LogTemp, Warning, TEXT("SecondaryWeapon Equip"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponSwapComponent is null in SwapToPrimaryWeapon"));
+	}
+}
+// 플레이어 캐릭터의 입력 함수 예시: 주력 무기로 스왑하는 함수
+void ACommanderCharacter::SwapToMeleeWeapon()
+{
+	if (WeaponSwapComponent)
+	{
+		WeaponSwapComponent->SwapWeapon(EItemCategory::Melee);
+		UE_LOG(LogTemp, Warning, TEXT("Melee Equip"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponSwapComponent is null in SwapToPrimaryWeapon"));
+	}
 }
