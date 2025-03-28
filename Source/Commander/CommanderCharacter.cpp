@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 #include "Inventory/InventoryComponent.h"
 #include "PlayerComponent/WeaponSwapComponent.h"
+#include "Component/WeaponFireComponent.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -58,6 +59,7 @@ ACommanderCharacter::ACommanderCharacter()
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	WeaponSwapComponent = CreateDefaultSubobject<UWeaponSwapComponent>(TEXT("WeaponSwapComponent"));
+	WeaponFireComponent = CreateDefaultSubobject<UWeaponFireComponent>(TEXT("WeaponFireComponent"));
 
 
 	// 입력 액션들을 ConstructorHelpers로 로드
@@ -89,6 +91,16 @@ ACommanderCharacter::ACommanderCharacter()
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Warning, TEXT("Failed to load IA_SwapMeleeWeapon"));
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> WeaponFireActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ThirdPerson/Input/Actions/IA_Fire.IA_Fire'"));
+	if (WeaponFireActionRef.Succeeded())
+	{
+		WeaponFireAction = WeaponFireActionRef.Object;
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("Failed to load IA_Fire"));
 	}
 }
 
@@ -141,6 +153,9 @@ void ACommanderCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInputComponent->BindAction(SwapPrimaryAction, ETriggerEvent::Started, this, &ACommanderCharacter::SwapToPrimaryWeapon);
 		EnhancedInputComponent->BindAction(SwapSecondaryAction, ETriggerEvent::Started, this, &ACommanderCharacter::SwapToSecondaryWeapon);
 		EnhancedInputComponent->BindAction(SwapMeleeAction, ETriggerEvent::Started, this, &ACommanderCharacter::SwapToMeleeWeapon);
+
+		//Fire
+		EnhancedInputComponent->BindAction(WeaponFireAction, ETriggerEvent::Started, this, &ACommanderCharacter::WeaponFire);
 	}
 	else
 	{
@@ -274,5 +289,20 @@ void ACommanderCharacter::SwapToMeleeWeapon()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("WeaponSwapComponent is null in SwapToPrimaryWeapon"));
+	}
+}
+
+
+// Weapon Fire 함수: WeaponFireComponent를 이용하여 총을 발사합니다.
+void ACommanderCharacter::WeaponFire()
+{
+	if (WeaponFireComponent)
+	{
+		WeaponFireComponent->Fire();
+		UE_LOG(LogTemp, Log, TEXT("WeaponFire executed."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponFireComponent is null in WeaponFire"));
 	}
 }

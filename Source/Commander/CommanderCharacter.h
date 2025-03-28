@@ -14,6 +14,7 @@ class UInputAction;
 
 class UInventoryComponent;
 class UWeaponSwapComponent;
+class UWeaponFireComponent;
 
 struct FInputActionValue;
 
@@ -60,6 +61,10 @@ class ACommanderCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SwapMeleeAction;
 
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* WeaponFireAction;
+
 public:
 	ACommanderCharacter();
 
@@ -70,6 +75,10 @@ public:
 	// 인벤토리 컴포넌트 (아이템 관리)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	UInventoryComponent* InventoryComponent;
+
+	// Weapon Fire Component 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "WeaponFire")
+	UWeaponFireComponent* WeaponFireComponent;
 
 	// 무기 스왑 함수 (주력 무기로 스왑)
 	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
@@ -82,6 +91,10 @@ public:
 	// 무기 스왑 함수 (주력 무기로 스왑)
 	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
 	void SwapToMeleeWeapon();
+
+	// 무기 공격(총알 발사) 함수 
+	UFUNCTION(BlueprintCallable, Category = "WeaponFire")
+	void WeaponFire();
 
 protected:
 
