@@ -111,8 +111,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UStaticMesh* WeaponMeshReference; // 무기 메시 참조
 
-	void EquipWeaponToHand();
-
+	void EquipWeaponToHand(); // 기본 장착 무기
+	
 protected: 
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;

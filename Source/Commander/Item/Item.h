@@ -31,7 +31,7 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
     FText ItemDescription;
 
-    // 예: 아이템 메쉬(스태틱 메시 혹은 스켈레탈 메시 등)
+    // 예: 아이템 메쉬(스태틱 메시 혹은 스켈레탈 메시 등) 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
     class UStaticMeshComponent* ItemMesh;
 
